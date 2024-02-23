@@ -46,11 +46,20 @@ client.query(query, (err, res) => {
     console.error(err);
     return;
   }
-  console.log('Максимальное количество пользователей было в следующее время:', res.rows[0].start_time);
+
+   // Получаем время из результата запроса
+   const startTime = new Date(res.rows[0].start_time);
+
+     // Форматируем время в более человеческом виде
+  const formattedTime = `${startTime.getFullYear()}-${('0' + (startTime.getMonth() + 1)).slice(-2)}-${('0' + startTime.getDate()).slice(-2)} ${('0' + startTime.getHours()).slice(-2)}:${('0' + startTime.getMinutes()).slice(-2)}:${('0' + startTime.getSeconds()).slice(-2)}`;
+
+  console.log('Максимальное количество пользователей было в следующее время:', formattedTime);
   console.log('Количество одновременных пользователей:', res.rows[0].concurrent_users);
-  
-  // Закрытие соединения с базой данных
-  client.end();
+
+ 
+   client.end();
+
+
 
   // Определение времени выполнения скрипта
   console.time('время выполнения скрипта');
