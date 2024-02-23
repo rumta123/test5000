@@ -6,10 +6,10 @@ function maxUniqueUsers(sessions) {
     const userSet = new Set();
 
     while (windowEnd < sessions.length) {
-        const { user_id } = sessions[windowEnd];
+        const { user_id, logout_time } = sessions[windowEnd];
 
         // Перемещаем начало окна, если сессия находится за пределами текущего окна
-        while (windowStart < windowEnd && sessions[windowStart].logout_time <= sessions[windowEnd].login_time) {
+        while (windowStart < windowEnd && sessions[windowStart].logout_time <= logout_time) {
             userSet.delete(sessions[windowStart].user_id);
             windowStart++;
         }
@@ -26,7 +26,6 @@ function maxUniqueUsers(sessions) {
 }
 
 
-
 // Функция для нахождения максимального количества посетителей за конкретный день
 function maxVisitorsForDay(sessions, dateString) {
     const months = [
@@ -38,61 +37,71 @@ function maxVisitorsForDay(sessions, dateString) {
     const day = parseInt(dateParts[0]);
     const monthIndex = months.indexOf(dateParts[1]);
     const year = parseInt(dateParts[2]);
-    
+
     const date = new Date(year, monthIndex, day);
+    const nextDay = new Date(year, monthIndex, day + 1);
 
-    const sessionsForDay = sessions.filter(session => {
-        const sessionDate = new Date(session.login_time);
+    const visitedUsers = new Set(); // Множество для отслеживания уникальных пользователей
 
-        return sessionDate.getDate() === date.getDate() &&
-               sessionDate.getMonth() === date.getMonth() &&
-               sessionDate.getFullYear() === date.getFullYear();
+    sessions.forEach(session => {
+        const sessionLoginDate = new Date(session.login_time);
+        const sessionLogoutDate = new Date(session.logout_time);
+
+        // Проверяем, что сессия началась до указанной даты и закончилась после нее
+        if (sessionLoginDate < nextDay && sessionLogoutDate >= date) {
+            visitedUsers.add(session.user_id);
+        }
     });
 
-    return maxUniqueUsers(sessionsForDay);
+    return visitedUsers.size; // Возвращаем количество уникальных пользователей
 }
 
 
 
 const sessions = [
-   
+//    23
     { 
         session_id: 1,
         user_id: 1,
         login_time: new Date("2024-02-23T08:00:00"),
         logout_time: new Date("2024-02-23T09:00:00")
     },
-
+// 23
     { 
         session_id: 2,
         user_id: 2,
         login_time: new Date("2024-02-23T08:30:00"),
         logout_time: new Date("2024-02-23T09:30:00")
     },
+    // 23
     { 
         session_id: 3,
         user_id: 3,
         login_time: new Date("2024-02-23T09:00:00"),
         logout_time: new Date("2024-02-23T10:00:00")
     },
+    // 23 - 24
     { 
         session_id: 4,
         user_id: 1,
         login_time: new Date("2024-02-23T09:30:00"),
         logout_time: new Date("2024-02-24T10:30:00") // Второй день
     },
+    // 23
     { 
         session_id: 5,
         user_id: 4,
         login_time: new Date("2024-02-23T08:30:00"),
         logout_time: new Date("2024-02-23T09:30:00")
     },
+    // 24 -24
     { 
         session_id: 6,
         user_id: 5,
         login_time: new Date("2024-02-24T08:30:00"),
         logout_time: new Date("2024-02-24T09:30:00")
     },
+    // 23- 24
     { 
         session_id: 7,
         user_id: 6,
@@ -140,6 +149,6 @@ const { maxPeople, maxTime } = maxPeopleInRoomWithTime(sessions);
 console.log("Максимальное количество людей в комнате:", maxPeople , "в момент времени",  formatTime(maxTime));
 
 
-const dateString = "23 февраля 2024"; 
+const dateString = "24 февраля 2024"; 
 const maxVisitors = maxVisitorsForDay(sessions, dateString);
 console.log(`Максимальное количество посетителей за ${dateString}:`, maxVisitors);
