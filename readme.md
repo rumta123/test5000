@@ -8,8 +8,8 @@
 
 1. Установите зависимости, выполнив следующую команду в корневой директории проекта:
 
-1.1 npm install dotenv  
-1.2 npm install pg
+npm install dotenv  
+npm install pg
 
 2. Также создайте бд в pg4  с именем test 
 2.1 загрузите бд (test.sql)
