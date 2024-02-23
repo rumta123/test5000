@@ -23,12 +23,12 @@ npm install pg
 В файле `1.js` вам может потребоваться изменить некоторые параметры в соответствии с вашими требованиями, например, дату или запрос к базе данных.
 
 ## Настройки BD
-Создайте .env
-DB_USER=postgres
-DB_HOST=localhost
-DB_DATABASE=test
-DB_PASSWORD=12345
-DB_PORT=5432
+Создайте .env  
+DB_USER=postgres  
+DB_HOST=localhost  
+DB_DATABASE=test  
+DB_PASSWORD=12345  
+DB_PORT=5432  
 
 ## Лицензия
 
