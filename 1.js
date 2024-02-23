@@ -15,52 +15,67 @@ client.connect();
 
 // Запрос для определения времени, когда было максимальное количество одновременных пользователей
 const query = `
-  SELECT 
-      start_time,
-      COUNT(*) AS concurrent_users
-  FROM (
-      SELECT 
-          login_time AS start_time
-      FROM 
-          "test"
-      WHERE 
-          DATE(login_time) = '2024-02-23'
-      UNION ALL
-      SELECT 
-          COALESCE(logout_time, NOW()) AS start_time
-      FROM 
-          "test"
-      WHERE 
-          DATE(logout_time) = '2024-02-23'
-  ) AS intervals
-  GROUP BY 
-      start_time
-  ORDER BY 
-      concurrent_users DESC
-  LIMIT 1;
-`;
+WITH user_sessions AS (
+    SELECT 
+        user_id,
+        login_time,
+        COALESCE(logout_time, CURRENT_TIMESTAMP) AS logout_time,
+        COUNT(user_id) OVER (PARTITION BY user_id ORDER BY login_time ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS num_sessions
+    FROM 
+        test
+    WHERE 
+        login_time::date = '2024-02-23'::date -- Filter by a given day (e.g., '2024-02-23')
 
+),
+intervals AS (
+    SELECT 
+        generate_series(
+            (SELECT MIN(login_time) FROM user_sessions),
+            (SELECT MAX(logout_time) FROM user_sessions),
+            '1 hour'::interval
+        ) AS start_time,
+        generate_series(
+            (SELECT MIN(login_time) FROM user_sessions),
+            (SELECT MAX(logout_time) FROM user_sessions),
+            '1 hour'::interval
+        ) + '1 hour'::interval AS end_time
+)
+SELECT 
+    start_time,
+    end_time,
+    COUNT(DISTINCT user_id) AS num_users
+FROM 
+    intervals
+JOIN 
+    user_sessions 
+ON 
+    (login_time, logout_time) OVERLAPS (start_time, end_time)
+GROUP BY 
+    start_time, end_time
+ORDER BY 
+    num_users DESC
+LIMIT 
+    1;
+
+`;
+// Определение времени перед выполнением запроса
+console.time('время выполнения запроса');
 // Выполнение запроса
 client.query(query, (err, res) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-
-   // Получаем время из результата запроса
-   const startTime = new Date(res.rows[0].start_time);
-
-     // Форматируем время в более человеческом виде
-  const formattedTime = `${startTime.getFullYear()}-${('0' + (startTime.getMonth() + 1)).slice(-2)}-${('0' + startTime.getDate()).slice(-2)} ${('0' + startTime.getHours()).slice(-2)}:${('0' + startTime.getMinutes()).slice(-2)}:${('0' + startTime.getSeconds()).slice(-2)}`;
-
-  console.log('Максимальное количество пользователей было в следующее время:', formattedTime);
-  console.log('Количество одновременных пользователей:', res.rows[0].concurrent_users);
-
- 
-   client.end();
-
-
-
-  // Определение времени выполнения скрипта
-  console.time('время выполнения скрипта');
-});
+    if (err) {
+      console.error(err);
+      return;
+    }
+  
+    // Получаем время из результата запроса
+    const startTime = new Date(res.rows[0].start_time);
+  
+    // Форматируем время в более человеческом виде
+    const formattedTime = `${startTime.getFullYear()}-${('0' + (startTime.getMonth() + 1)).slice(-2)}-${('0' + startTime.getDate()).slice(-2)} ${('0' + startTime.getHours()).slice(-2)}:${('0' + startTime.getMinutes()).slice(-2)}:${('0' + startTime.getSeconds()).slice(-2)}`;
+  
+    console.log('Максимальное количество пользователей было в следующее время:', formattedTime);
+    console.log('Количество одновременных пользователей:', res.rows[0].num_users);
+  // Определение времени после выполнения запроса
+  console.timeEnd('время выполнения запроса');
+    client.end();
+  });
