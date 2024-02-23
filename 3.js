@@ -108,6 +108,12 @@ const sessions = [
         login_time: new Date("2024-02-23T11:30:00"),
         logout_time: new Date("2024-02-24T12:30:00")
     },
+    { 
+        session_id: 7,
+        user_id: 7,
+        login_time: new Date("2024-02-22T11:30:00"),
+        logout_time: new Date("2024-02-24T12:30:00")
+    },
 ];
 
 function maxPeopleInRoomWithTime(sessions) {
@@ -149,6 +155,6 @@ const { maxPeople, maxTime } = maxPeopleInRoomWithTime(sessions);
 console.log("Максимальное количество людей в комнате:", maxPeople , "в момент времени",  formatTime(maxTime));
 
 
-const dateString = "24 февраля 2024"; 
+const dateString = "22 февраля 2024"; 
 const maxVisitors = maxVisitorsForDay(sessions, dateString);
 console.log(`Максимальное количество посетителей за ${dateString}:`, maxVisitors);
