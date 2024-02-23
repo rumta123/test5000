@@ -12,7 +12,7 @@ npm install dotenv
 npm install pg
 
 Также создайте бд в pg4  с именем test 
-#Команды sql и загрузите бд (test.sql)
+загрузите бд (test.sql)
 
 
 
