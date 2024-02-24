@@ -16,7 +16,7 @@ async function getSessionsFromDB() {
       return result.rows;
     } catch (error) {
       console.error('Error fetching sessions:', error);
-      throw error; // Возбуждаем ошибку, чтобы обработать ее в вызывающем коде
+      throw error; 
     }
   }
 
@@ -46,7 +46,7 @@ function maxVisitorsForDay(sessions, dateString) {
         }
     });
 
-    return visitedUsers.size; // Возвращаем количество уникальных пользователей
+    return visitedUsers.size; // количество уникальных пользователей
 }
 
 function maxPeopleInRoomWithTime(sessions) {

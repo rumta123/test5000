@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 require('dotenv').config();
 
-// Создаем глобальный клиент
+
 const client = new Client({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -10,7 +10,7 @@ const client = new Client({
     port: process.env.DB_PORT,
 });
 
-// Подключаемся к базе данных при запуске приложения
+
 client.connect();
 
 // Функция для выполнения запросов
@@ -18,15 +18,15 @@ async function executeQuery(query) {
     try {
         const result = await client.query(query);
         // console.log('Query executed successfully');
-        // console.log(result.rows); // Выводим результат запроса
-        return result.rows; // Возвращаем результат запроса
+        // console.log(result.rows); 
+        return result.rows; 
     } catch (error) {
-        console.error('Error executing query:', error);
-        return []; // Возвращаем пустой массив в случае ошибки
+        console.error('Error executeQuery:', error);
+        return []; // пустой массив в случае ошибки
     }
 }
 
-// Ваши запросы
+
 const functionQuery = `
 SELECT 
     max_people,
@@ -57,7 +57,7 @@ RETURNS int AS $$
 DECLARE 
     max_visitors int;
 BEGIN
-    -- Выполняем запрос
+  
     SELECT 
         COUNT(DISTINCT user_id) INTO max_visitors
     FROM 
@@ -68,41 +68,35 @@ BEGIN
         login_time <= target_date::timestamp + interval '1 day' - interval '1 second' AND
         (logout_time >= target_date::timestamp OR logout_time IS NULL);
     
-    -- Возвращаем результат запроса
+  
     RETURN max_visitors;
 END;
 $$ LANGUAGE plpgsql;
 
 `;
 
+
+
 (async () => {
     const result1 = await executeQuery(functionQuery);
-    
-    // Проверяем, что результат не пустой массив
     if (result1.length > 0) {
-        // Получаем первый объект из массива
+       
         const firstResult = result1[0];
-        
-        // Получаем значение max_people
         const maxPeople = firstResult.max_people;
         const formattedMaxTime = firstResult.formatted_max_time;
-        console.log('Максимальное количество людей :', maxPeople , 'дата и время:', formattedMaxTime);
-        
-        // Получаем значение formatted_max_time
-       
+        console.log('Максимальное количество пользователей :', maxPeople , 'дата и время:', formattedMaxTime);    
         
     } else {
         console.log('Результат запроса пустой.');
     }
     
-    //  const result2 = await executeQuery(functionMax);
-    //  console.log(result2);
+
     
     
-   // Вызываем функцию getMaxVisitors отдельно после её определения
+
    const datetest = '2024-02-23';
    const query = `SELECT getMaxVisitors('${datetest}')`;
    const result3 = await executeQuery(query);
-   console.log(` "${datetest} максимальное число людей ${result3[0].getmaxvisitors}`)
-//    console.log(` число посетителей ${maxVisitors}`);
+   console.log(` ${datetest} максимальное кол-во пользователей ${result3[0].getmaxvisitors}`)
+
 })();

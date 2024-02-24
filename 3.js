@@ -85,7 +85,7 @@ const sessions = [
         session_id: 4,
         user_id: 1,
         login_time: new Date("2024-02-23T09:30:00"),
-        logout_time: new Date("2024-02-24T10:30:00") // Второй день
+        logout_time: new Date("2024-02-24T10:30:00")
     },
     // 23
     { 
