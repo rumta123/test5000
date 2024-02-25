@@ -84,16 +84,11 @@ $$ LANGUAGE plpgsql;
         const firstResult = result1[0];
         const maxPeople = firstResult.max_people;
         const formattedMaxTime = firstResult.formatted_max_time;
-        console.log('Максимальное количество пользователей :', maxPeople , 'дата и время:', formattedMaxTime);    
+        console.log('Максимальное количество пользователей одновременно:', maxPeople , 'дата и время:', formattedMaxTime);    
         
     } else {
         console.log('Результат запроса пустой.');
     }
-    
-
-    
-    
-
    const datetest = '2024-02-23';
    const query = `SELECT getMaxVisitors('${datetest}')`;
    const result3 = await executeQuery(query);
